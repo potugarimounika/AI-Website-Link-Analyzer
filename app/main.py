@@ -50,6 +50,15 @@ class TargetAudience(BaseModel):
     industries: List[str]
     needs: List[str]
 
+class Benchmark(BaseModel):
+    provider: str
+    model: str
+    response_time_seconds: float
+    input_tokens: Optional[int] = None
+    output_tokens: Optional[int] = None
+    total_tokens: Optional[int] = None
+    valid_json: bool
+
 class AnalysisResponse(BaseModel):
     analyzed_url: str
     website_title: str
@@ -60,6 +69,7 @@ class AnalysisResponse(BaseModel):
     top_services: List[Service]
     target_audience: TargetAudience
     disclaimer: str
+    benchmark: Benchmark
 
 @app.get("/")
 def home():
