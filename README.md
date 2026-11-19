@@ -1,80 +1,39 @@
 # AI-Powered Website Link Analysis API
 
-A Python FastAPI project that accepts a public website URL, extracts visible page content, and uses Google Gemini to generate:
-1. Competitor suggestions (up to 3), with strengths and weaknesses
-2. Five target search queries each for Google, Facebook, Instagram, LinkedIn, and X
-3. SEO recommendations (keywords, title, meta description, content improvements)
-4. The website's top five services
-5. Likely target audience segments, industries, and needs
+A Python FastAPI application that accepts a public website URL, extracts available page content, and uses Google Gemini to generate an AI-powered website analysis.
 
-> AI output is advisory. Competitors and audience assumptions must be independently verified.
+## Features
+
+The API generates:
+
+1. **Website Summary:** Website title and summary.
+2. **Competitor Analysis:** Up to 3 competitor suggestions with strengths and weaknesses.
+3. **Target Search Queries:** Five suggested queries each for Google, Facebook, Instagram, LinkedIn, and X.
+4. **SEO Recommendations:** Suggested keywords, SEO title, meta description, and content improvements.
+5. **Top Services:** Up to 5 suggested services.
+6. **Target Audience:** Customer segments, industries, and customer needs.
+
+> AI-generated recommendations are advisory. Competitors, services, and audience assumptions should be independently verified.
+
+## Technologies Used
+
+- Python 3.10+
+- FastAPI
+- Google Gemini API
+- Google Gen AI Python SDK
+- HTTPX
+- BeautifulSoup
+- Pydantic
+- Pytest
 
 ## Requirements
-- Python 3.10+
-- Git and a GitHub account
-- A Gemini API key
 
-## Setup on Windows (VS Code terminal / PowerShell)
+- Python 3.10 or later
+- Git
+- A GitHub account
+- A Google Gemini API key
 
-```powershell
-py -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-Copy-Item .env.example .env
-```
-
-Open `.env` and replace the placeholder with your own Gemini API key. Never commit `.env`.
-
-If PowerShell blocks activation, run this in the current terminal:
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.venv\Scripts\Activate.ps1
-```
-
-## Run the API
-
-```powershell
-uvicorn app.main:app --reload
-```
-
-Open:
-- API home: http://127.0.0.1:8000/
-- Swagger UI: http://127.0.0.1:8000/docs
-- Health check: http://127.0.0.1:8000/health
-
-## Test the endpoint
-
-In Swagger UI:
-1. Expand `POST /analyze`
-2. Click **Try it out**
-3. Enter a public website URL, for example:
-
-```json
-{
-  "url": "https://example.com"
-}
-```
-
-4. Click **Execute**. A successful response contains all five analysis sections.
-
-PowerShell alternative:
-```powershell
-Invoke-RestMethod -Method Post `
-  -Uri "http://127.0.0.1:8000/analyze" `
-  -ContentType "application/json" `
-  -Body '{"url":"https://example.com"}'
-```
-
-## Run tests
-
-```powershell
-pytest -v
-```
-
-The included tests check URL validation. Add more tests for successful scraping, provider failures, and response-schema validation before production use.
-
-## Project structure
+## Project Structure
 
 ```text
 website_link_analyzer/
@@ -88,19 +47,120 @@ website_link_analyzer/
 ├── .env.example
 ├── .gitignore
 ├── requirements.txt
-└── README.md
+├── README.md
+└── MODEL_COMPARISON_TEMPLATE.md
 ```
 
-## API contract
+## Setup on Windows
 
-`POST /analyze`
+Open the project folder in VS Code and open its PowerShell terminal.
+
+Create a virtual environment:
+
+```powershell
+py -m venv .venv
+```
+
+Activate it:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+Install dependencies:
+
+```powershell
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+Create your environment file:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Open `.env` and add your Gemini API key using the variable name specified in `.env.example`.
+
+**Security:** Never upload `.env` or expose your API key in GitHub, screenshots, or API responses.
+
+If PowerShell blocks virtual environment activation, run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+```
+
+Then activate the environment again.
+
+## Run the API
+
+From the project directory, run:
+
+```powershell
+python -m uvicorn app.main:app --reload
+```
+
+Open these URLs in your browser:
+
+- API home: http://127.0.0.1:8000/
+- Swagger UI: http://127.0.0.1:8000/docs
+- Health check: http://127.0.0.1:8000/health
+
+## Test the API
+
+Open Swagger UI:
+
+http://127.0.0.1:8000/docs
+
+1. Expand `POST /analyze`.
+2. Click **Try it out**.
+3. Enter the following request:
+
+```json
+{
+  "url": "https://example.com"
+}
+```
+
+4. Click **Execute**.
+
+The API returns a structured JSON response containing the website analysis and benchmark information.
+
+### PowerShell alternative
+
+```powershell
+Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/analyze" `
+  -ContentType "application/json" `
+  -Body '{"url":"https://example.com"}'
+```
+
+## Run Tests
+
+Run the test suite:
+
+```powershell
+python -m pytest -v
+```
+
+The current tests verify URL validation, including rejection of invalid URL schemes and localhost addresses.
+
+**Latest test result:** 2 tests passed.
+
+## API Contract
+
+**Endpoint:** `POST /analyze`
 
 Request:
+
 ```json
-{"url": "https://example.com"}
+{
+  "url": "https://example.com"
+}
 ```
 
-Response keys:
+The response contains:
+
 - `analyzed_url`
 - `website_title`
 - `website_summary`
@@ -110,56 +170,71 @@ Response keys:
 - `top_services`
 - `target_audience`
 - `disclaimer`
+- `benchmark`
 
-## LLM comparison notes
+The benchmark records the configured provider, model, response time, token usage, and JSON validity.
 
-The project currently uses Gemini through the official Google Gen AI Python SDK. For the assessment's model-comparison section, compare the same prompt and same website input across at least three models (for example, OpenAI, Gemini, and Claude). Record the date, exact model ID, input/output token usage if available, measured response time, API price from each provider's current pricing page, JSON validity, and a human-reviewed quality score. Do not copy old prices: provider prices and model names change.
+## LLM Comparison
 
-Suggested evaluation rubric (score each 1–5):
-- Correctness and relevance
-- Completeness of the five requested sections
-- Valid JSON / schema compliance
-- Response latency
-- Cost for the same input and output size
+The current application uses Google Gemini through the official Google Gen AI Python SDK.
 
-Choose a winner based on measured results, not brand preference. The code uses Gemini as the default implementation; you can adapt `app/analyzer.py` to another provider if your comparison supports that choice.
+### Actual Gemini test record
 
-## Design decisions and limitations
+| Metric | Recorded result |
+|---|---|
+| Model ID configured | gemini-3.5-flash |
+| Test date | 18 November 2026 |
+| Website | https://www.amazon.in/ |
+| Response time | 26.716239 seconds |
+| Input tokens | 410 |
+| Output tokens | 1,129 |
+| Total tokens reported | 2,878 |
+| Valid JSON | Yes |
 
-- Uses HTTPX and BeautifulSoup to retrieve and parse server-rendered HTML.
-- JavaScript-rendered content may not appear in the extracted text.
-- The AI may suggest competitors that need manual verification.
-- Some sites block automated requests or require login; those cannot be analyzed by this basic scraper.
-- Public URL validation blocks obvious private/local destinations. For a production deployment, add DNS-rebinding-safe outbound network controls, request-size limits, rate limiting, authentication, and stricter redirect validation.
-- CORS is open for local assessment convenience; restrict allowed origins before production.
-- Never expose your API key in source code, screenshots, GitHub, or API responses.
+**Comparison limitations:**
 
-## GitHub upload
+- Gemini was tested through the application.
+- OpenAI and Anthropic Claude were not tested.
+- Their performance, response times, token usage, and JSON validity are therefore not available.
+- No comparative accuracy or completeness scores are claimed.
+- Pricing should be checked against current official provider documentation before calculating costs.
 
-Create an empty public repository on GitHub named `ai-website-link-analyzer`.
+See `MODEL_COMPARISON_TEMPLATE.md` for the comparison record and methodology.
 
-Then, from the project folder:
+Official pricing references:
 
-```powershell
-git init
-git add .
-git commit -m "Build AI website link analysis API"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/ai-website-link-analyzer.git
-git push -u origin main
-```
+- OpenAI: https://developers.openai.com/api/docs/pricing
+- Google Gemini: https://ai.google.dev/gemini-api/docs/pricing
+- Anthropic: https://platform.claude.com/docs/en/about-claude/pricing
 
-Replace `YOUR-USERNAME` with your GitHub username. Do not paste a real API key into README or source files.
+## Design Decisions and Limitations
 
-## Before submitting
+- HTTPX is used to retrieve website HTML.
+- BeautifulSoup extracts available page text, titles, headings, metadata, and links.
+- JavaScript-rendered content may not be available through basic HTML scraping.
+- Some websites block automated requests or require login.
+- AI-generated competitor and audience suggestions may require manual verification.
+- Public URL validation helps block private and local network destinations. Production deployment requires additional protections against DNS rebinding and unsafe redirects.
+- The API is configured for local assessment use. CORS, authentication, rate limiting, and outbound network restrictions should be strengthened before production deployment.
 
-- [ ] Install dependencies successfully
-- [ ] Add a valid key to local `.env`
-- [ ] Start the server
-- [ ] Confirm `/health` returns `{"status":"ok"}`
-- [ ] Test `/analyze` with a public website
-- [ ] Run `pytest -v`
-- [ ] Review the AI output for unsupported claims
-- [ ] Complete the model comparison with current measured data
-- [ ] Check `git status` and ensure `.env` is not staged
-- [ ] Push the repository and open its GitHub URL in a private/incognito window
+## GitHub Repository
+
+Repository:
+
+https://github.com/potugarimounika/AI-Website-Link-Analyzer
+
+The project source code and comparison document are maintained in this repository.
+
+## Submission Checklist
+
+- [x] FastAPI application implemented.
+- [x] Gemini integration completed.
+- [x] Website analysis endpoint tested.
+- [x] Structured JSON response received.
+- [x] Basic URL validation tests passed.
+- [x] LLM comparison document prepared.
+- [x] Code pushed to GitHub.
+- [ ] Review README and sample response.
+- [ ] Capture final API and test screenshots.
+- [ ] Verify repository contents and ensure `.env` is not public.
+- [ ] Submit the GitHub repository link to the assessment team.
