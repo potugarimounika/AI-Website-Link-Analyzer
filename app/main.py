@@ -79,7 +79,7 @@ def home():
 def health():
     return {"status": "ok"}
 
-@app.post("/analyze", response_model=AnalysisResponse)
+@app.post("/link-analysis", response_model=AnalysisResponse)
 async def analyze(request: AnalyzeRequest):
     url = str(request.url)
     try:
