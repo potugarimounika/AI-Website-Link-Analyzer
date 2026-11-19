@@ -90,5 +90,9 @@ async def analyze(request: AnalyzeRequest):
         raise HTTPException(status_code=400, detail=str(exc))
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc))
-    except Exception:
-        raise HTTPException(status_code=500, detail="Analysis failed. Check server logs and configuration.")
+    except Exception as exc:
+        print("ANALYSIS ERROR:", repr(exc))
+        raise HTTPException(
+            status_code=500,
+            detail="Analysis failed. Check server logs and configuration."
+        )
