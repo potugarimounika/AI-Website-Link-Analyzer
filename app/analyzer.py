@@ -156,7 +156,7 @@ Label uncertain competitor suggestions as requiring verification.
 
     try:
 
-        model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+        model_name = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 
         start_time = time.perf_counter()
 
